@@ -1,5 +1,7 @@
 import LftCM.Common
 import Mathlib.Data.Real.Basic
+import Paperproof
+
 -- An example.
 example (a b c : ℝ) : a * b * c = b * (a * c) := by
   rw [mul_comm a b]
@@ -7,7 +9,15 @@ example (a b c : ℝ) : a * b * c = b * (a * c) := by
 
 -- Try these.
 example (a b c : ℝ) : c * b * a = b * (a * c) := by
-  sorry
+  rw [mul_assoc, mul_comm, mul_assoc]
+  --ring
+
+-- Try these.
+example (a b c : ℝ) : c * b * a = b * (a * c) := by
+  calc
+     (c * b) * a = c * (b * a) := by exact mul_assoc c b a
+              _  = (b * a) * c := by exact mul_comm _ _
+              _  = b * (a * c) := by exact mul_assoc _ _ _
 
 example (a b c : ℝ) : a * (b * c) = b * (a * c) := by
   sorry
@@ -20,7 +30,7 @@ example (a b c : ℝ) : a * b * c = b * c * a := by
 /- Try doing the first of these without providing any arguments at all,
    and the second with only one argument. -/
 example (a b c : ℝ) : a * (b * c) = b * (c * a) := by
-  sorry
+  rw [mul_comm, mul_assoc]
 
 example (a b c : ℝ) : a * (b * c) = b * (a * c) := by
   sorry
@@ -33,10 +43,21 @@ example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c *
   rw [mul_assoc]
 
 example (a b c d e f : ℝ) (h : b * c = e * f) : a * b * c * d = a * e * f * d := by
-  sorry
+  rw [mul_assoc a b c, h, <- mul_assoc _ _ _]
 
 example (a b c d : ℝ) (hyp : c = b * a - d) (hyp' : d = a * b) : c = 0 := by
-  sorry
+  have t2 :(a * b) - (a * b) = 0 := add_neg_self (a * b)
+  rw [mul_comm] at hyp
+  rw [hyp'] at hyp
+  rw [t2] at hyp
+  exact hyp
+
+example (a b c d : ℝ) (hyp : c = b * a - d) (hyp' : d = a * b) : c = 0 := by
+  rw [mul_comm] at hyp
+  rw [hyp'] at hyp
+  rw [sub_self] at hyp
+  exact hyp
+
 
 example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c * (d * f) := by
   rw [h', ← mul_assoc, h, mul_assoc]
