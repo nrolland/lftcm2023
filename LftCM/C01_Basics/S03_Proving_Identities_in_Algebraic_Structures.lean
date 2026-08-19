@@ -67,21 +67,34 @@ theorem mul_zero (a : R) : a * 0 = 0 := by
     rw [← mul_add, add_zero, add_zero]
   rw [add_left_cancel h]
 
-theorem zero_mul (a : R) : 0 * a = 0 := by
-  sorry
+theorem zero_mul (a : R) : 0 * a = 0 :=  by
+  --sorry
+  have h : 0 * a + 0 * a = 0 * a + 0 := by calc
+        0 * a + 0 * a = (0 + 0) * a := by rw [add_mul]
+       _ = 0 * a  :=  by rw [add_zero]
+       _ = 0 * a + 0 :=  by rw [add_zero]
+  exact add_left_cancel h
 
 theorem neg_eq_of_add_eq_zero {a b : R} (h : a + b = 0) : -a = b := by
-  sorry
+  -- sorry
+  rw [<- add_right_neg a] at h
+  have := add_left_cancel h
+  exact Eq.symm this
+
+#check Eq.symm
 
 theorem eq_neg_of_add_eq_zero {a b : R} (h : a + b = 0) : a = -b := by
-  sorry
+  --sorry
+  rw [<- add_right_neg b, add_comm] at h
+  exact add_left_cancel h
 
 theorem neg_zero : (-0 : R) = 0 := by
   apply neg_eq_of_add_eq_zero
   rw [add_zero]
 
 theorem neg_neg (a : R) : - -a = a := by
-  sorry
+--  sorry
+  exact neg_eq_of_add_eq_zero (add_left_neg _)
 
 end MyRing
 
@@ -94,23 +107,42 @@ example (a b : R) : a - b = a + -b :=
 
 end
 
+#synth Neg ℝ
+#synth Sub ℝ
+
 example (a b : ℝ) : a - b = a + -b :=
   rfl
 
 example (a b : ℝ) : a - b = a + -b := by
   rfl
 
+
+--succ_eq_add_one
+
 namespace MyRing
 variable {R : Type*} [Ring R]
 
-theorem self_sub (a : R) : a - a = 0 :=
-  sorry
+-- theorem toto (a b : R) :  a - b = a + -b := by
+--   rfl
+
+#check sub_eq_add_neg -- : a - b = a + -b
+
+-- #find  ?a - ?b = ?a + -?b
+
+theorem self_sub (a : R) : a - a = 0 := by
+  rw [sub_eq_add_neg]
+  exact add_right_neg _
+
+theorem self_sub' (a : R) : a - a = 0 := by
+  -- sorry
+  rw [sub_eq_add_neg, add_right_neg]
 
 theorem one_add_one_eq_two : 1 + 1 = (2 : R) := by
   norm_num
 
-theorem two_mul (a : R) : 2 * a = a + a :=
-  sorry
+theorem two_mul (a : R) : 2 * a = a + a := by
+  --sorry
+  rw [<- @one_add_one_eq_two, add_mul, one_mul]
 
 end MyRing
 
@@ -133,14 +165,18 @@ variable {G : Type*} [Group G]
 namespace MyGroup
 
 theorem mul_right_inv (a : G) : a * a⁻¹ = 1 := by
-  sorry
+  --sorry
+  rw [<- div_eq_mul_inv]
+  rw []
+  simp?
 
 theorem mul_one (a : G) : a * 1 = a := by
-  sorry
+  rw [← mul_left_inv a, <- mul_assoc, mul_right_inv, one_mul]
 
 theorem mul_inv_rev (a b : G) : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
-  sorry
-
+  have : (a * b) *  (a * b)⁻¹ = (a * b) * (b⁻¹ * a⁻¹) := by
+    rw [mul_right_inv, <- mul_assoc, mul_assoc a b, mul_right_inv, mul_one, mul_right_inv]
+  exact mul_left_cancel this
 end MyGroup
 
 end

@@ -2,6 +2,8 @@ import LftCM.Common
 import Mathlib.Data.Real.Basic
 import Paperproof
 
+import LftCM.Common
+
 -- An example.
 example (a b c : ℝ) : a * b * c = b * (a * c) := by
   rw [mul_comm a b]
@@ -118,10 +120,23 @@ section
 variable (a b c d : ℝ)
 
 example : (a + b) * (c + d) = a * c + a * d + b * c + b * d := by
-  sorry
+  rw [<- mul_add,  add_assoc, <-mul_add, <- add_mul]
+
+
+example : a - b = a + -b := by trivial
+
+
+#find HPow.hPow
 
 example (a b : ℝ) : (a + b) * (a - b) = a ^ 2 - b ^ 2 := by
+  rw [add_mul]
+  have :  a * (a - b) + b * (a - b) = a * (a + -b) + b * (a + -b) := by trivial
+  rw [this, mul_add, mul_add, add_assoc]
+  have : a ^ 2 - b ^ 2 = a ^ 2  + -b ^ 2 := by trivial
+  rw [this]
+  have : a * a = a ^ 2  := by apply?
   sorry
+
 
 #check pow_two a
 #check mul_sub a b c

@@ -43,8 +43,8 @@ example (x : ℝ) : x ≤ x :=
 #check (lt_trans : a < b → b < c → a < c)
 
 -- Try this.
-example (h₀ : a ≤ b) (h₁ : b < c) (h₂ : c ≤ d) (h₃ : d < e) : a < e := by
-  sorry
+example (h₀ : a ≤ b) (h₁ : b < c) (h₂ : c ≤ d) (h₃ : d < e) : a < e :=
+  ((h₀|> lt_of_le_of_lt <| h₁) |>lt_of_lt_of_le <|h₂) |> lt_trans <| h₃
 
 example (h₀ : a ≤ b) (h₁ : b < c) (h₂ : c ≤ d) (h₃ : d < e) : a < e := by
   linarith
@@ -100,31 +100,80 @@ example : 0 ≤ a ^ 2 := by
   -- apply?
   exact sq_nonneg a
 
+#check sub_le_sub_left -- a ≤ b → ∀ (c : α), c - b ≤ c - a
 example (h : a ≤ b) : c - exp b ≤ c - exp a := by
-  sorry
+  have : exp a <= exp b :=  exp_strictMono.le_iff_le.mpr h
+  exact sub_le_sub_left this c
+
+example : 4  = 1 + 1 + 1 + 1 := rfl
+
+-- #find  ?b - ?a + ?a = ?b
+#check sub_add_cancel --  a - b + b = a
+
+example : 2 * a * b ≤ a ^ 2 + b ^ 2 := by
+  have h : 0 <= a ^ 2 -   2 * a * b + b ^ 2
+  calc
+     0 <= (a - b) ^ 2  := pow_two_nonneg _
+     _ = a ^ 2 -   2 * a * b + b ^ 2  := by ring
+
+  calc
+    2 * a * b = 2 * a * b + 0                             := by rw [add_zero]
+            _ ≤ 2 * a * b +  (a ^ 2 - 2 * a * b + b ^ 2 ) := add_le_add le_rfl h
+            _ ≤ a ^ 2 + b ^ 2       := by rw [<- add_assoc, add_comm (2 * a * b), sub_add_cancel]
+
 
 example : 2 * a * b ≤ a ^ 2 + b ^ 2 := by
   have h : 0 ≤ a ^ 2 - 2 * a * b + b ^ 2
   calc
     a ^ 2 - 2 * a * b + b ^ 2 = (a - b) ^ 2 := by ring
     _ ≥ 0 := by apply pow_two_nonneg
-
   calc
-    2 * a * b = 2 * a * b + 0 := by ring
-    _ ≤ 2 * a * b + (a ^ 2 - 2 * a * b + b ^ 2) :=
-      add_le_add (le_refl _) h
-    _ = a ^ 2 + b ^ 2 := by ring
+    2 * a * b = 2 * a * b + 0                   := by ring
+    _ ≤ 2 * a * b + (a ^ 2 - 2 * a * b + b ^ 2) := add_le_add (le_refl _) h
+    _ = a ^ 2 + b ^ 2                           := by ring
 
 
-example : 2 * a * b ≤ a ^ 2 + b ^ 2 := by
+theorem diag  : 2 * a * b ≤ a ^ 2 + b ^ 2 := by
   have h : 0 ≤ a ^ 2 - 2 * a * b + b ^ 2
   calc
     a ^ 2 - 2 * a * b + b ^ 2 = (a - b) ^ 2 := by ring
     _ ≥ 0 := by apply pow_two_nonneg
   linarith
 
+
+theorem diag'  : - 2 * a * b ≤ a ^ 2 + b ^ 2 := by
+  have h : 0 ≤ a ^ 2 + 2 * a * b + b ^ 2
+  calc
+    a ^ 2 + 2 * a * b + b ^ 2 = (a + b) ^ 2 := by ring
+    _ ≥ 0 := by apply pow_two_nonneg
+  linarith
+
+
+-- #find ?a * ?b * ?c =  ?c * ?a * ?b
+
+#check le_div_iff' -- :  a / c ≤ b ↔ a ≤ b * c
+
+#check le_div_iff -- :  a ≤ b / c ↔ a * c ≤ b
+#check  abs_le' -- : |a| ≤ b ↔ a ≤ b ∧ -a ≤ b :=
+#check  abs_le -- :  |a| ≤ b ↔ -b ≤ a ∧ a ≤ b
+
 example : |a * b| ≤ (a ^ 2 + b ^ 2) / 2 := by
-  sorry
+  have h : (0 : ℝ) < 2 := by norm_num
+  have diag  : 2 * a * b ≤ a ^ 2 + b ^ 2 := by
+    have h : 0 ≤ a ^ 2 - 2 * a * b + b ^ 2
+    calc
+      a ^ 2 - 2 * a * b + b ^ 2 = (a - b) ^ 2 := by ring
+      _ ≥ 0 := by apply pow_two_nonneg
+    linarith
+
+
+  rw [abs_le']
+  constructor
+  . show a * b ≤ (a ^ 2 + b ^ 2) / 2
+    rw [le_div_iff h]
+    linarith [diag]
+  . show -(a * b) ≤ (a ^ 2 + b ^ 2) / 2
+    rw [le_div_iff h]
+    linarith [diag' a _]
 
 #check abs_le'.mpr
-

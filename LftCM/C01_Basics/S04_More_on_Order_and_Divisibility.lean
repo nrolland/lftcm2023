@@ -1,5 +1,6 @@
 import LftCM.Common
 import Mathlib.Data.Real.Basic
+import Paperproof
 
 namespace C02S04
 
@@ -80,5 +81,3 @@ variable (m n : ℕ)
 example : Nat.gcd m n = Nat.gcd n m := by
   sorry
 end
-
-

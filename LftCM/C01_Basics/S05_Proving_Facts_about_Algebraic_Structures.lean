@@ -1,5 +1,6 @@
 import LftCM.Common
 import Mathlib.Topology.MetricSpace.Basic
+import Paperproof
 
 section
 variable {α : Type*} [PartialOrder α]
@@ -34,7 +35,15 @@ variable (x y z : α)
 #check (sup_le : x ≤ z → y ≤ z → x ⊔ y ≤ z)
 
 example : x ⊓ y = y ⊓ x := by
-  sorry
+  apply le_antisymm
+  . show  x ⊓ y ≤ y ⊓ x
+    apply le_inf
+    . exact inf_le_right
+    . exact inf_le_left
+  . show   y ⊓ x ≤ x ⊓ y
+    apply le_inf
+    . exact inf_le_right
+    . exact inf_le_left
 
 example : x ⊓ y ⊓ z = x ⊓ (y ⊓ z) := by
   sorry
@@ -107,4 +116,3 @@ example (x y : X) : 0 ≤ dist x y := by
   sorry
 
 end
-

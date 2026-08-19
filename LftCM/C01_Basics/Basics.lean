@@ -105,7 +105,7 @@ theorem Euclid_Thm (n : ℕ) : ∃ p, n ≤ p ∧ Nat.Prime p := by
   have np : n ≤ p :=
     le_of_not_ge fun h =>
       have h₁ : p ∣ factorial n := dvd_factorial (minFac_pos _) h
-      have h₂ : p ∣ 1 := (Nat.dvd_add_iff_right h₁).2 (minFac_dvd _)
+      have h₂ : p ∣ 1 := (Nat.dvd_add_iff_right h₁).2 (minFac_dvd (factorial n + 1 ))
       pp.not_dvd_one h₂
   exact ⟨p, np, pp⟩
 
@@ -124,8 +124,37 @@ example : Euclid_Thm = Ugly_Euclid_Thm := rfl
 theorem Easy_Euclid_Thm (n : ℕ) : ∃ p, n ≤ p ∧ Nat.Prime p := by exact?
 
 example (a b : ℕ) : a + a * b = (b + 1) * a := by
-  rw?
-  sorry
+  --rw?
+  rw [← @mul_one_add]
+  rw [add_comm, mul_comm]
+
+def MySet : Set ℕ := {1}
+example : 1 ∈ MySet := by
+  rw [MySet]
+  --simp?
+  -- simp only
+  -- simp
+  -- simp_all
+  -- simp only
+  --rw [@Set.mem_singleton_iff]
+  simp?
+  --sorry
+
+def MySet2 : Set ℕ := {1,2}
+example : 1 ∈ MySet2 := by
+  rw [MySet2]
+  rw [@Set.mem_insert_iff]
+  simp
+
+
+
+#synth Singleton ℕ (Set ℕ)
+
+-- #synth CoeT (Finset ℕ ) (Set ℕ)
+
+#check Set.mem_singleton
+#print Set.mem_singleton
+
 
 -- # Some more difficult proofs
 def myFactorial : ℕ → ℕ
@@ -149,6 +178,14 @@ theorem myFactorial_pos (n : ℕ) : 0 < myFactorial n := by
     apply mul_pos
     · exact succ_pos n
     · exact ih
+
+theorem myFactorial_pos2 (n : ℕ) : 0 < myFactorial n := by
+  induction' n with n ih
+  · rw [myFactorial_zero]
+    simp
+  · rw [succ_eq_add_one, myFactorial_add_one]
+    exact ih |> (succ_pos n |> mul_pos)
+
 
 theorem myFactorial_pos' (n : ℕ) : 0 < myFactorial n := by
   induction n
